@@ -2,11 +2,12 @@
 import { prisma } from "@/lib/prisma";
 import { CardInfoClient } from "../CardInfoClient";
 
-// ADICIONE ESTA LINHA AQUI:
-// Isso diz ao Next.js para atualizar os dados a cada 0 segundos (sempre fresco)
-export const revalidate = 0; 
+export const revalidate = 0; // Força revalidação instantânea
 
 export async function CardInfo() {
+  // Adicionando um timestamp ou log para você ver no console da Vercel que ele executou
+  console.log("Buscando horários no banco: ", new Date().toISOString());
+
   const horarios = await prisma.horarioFuncionamento.findMany({
     orderBy: {
       diaSemana: 'asc' 

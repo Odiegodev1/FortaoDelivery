@@ -4,6 +4,7 @@ import { CardDestaque } from "./_components/CardDestaque";
 import { CardInfo } from "./_components/CardInfo";
 import { ListCategoria } from "./_components/ListCategoria";
 
+export const dynamic = 'force-dynamic';
 export default function Home(){
     const currentYear = new Date().getFullYear();
     return(
