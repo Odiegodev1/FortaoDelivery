@@ -69,9 +69,12 @@ export function CheckoutForm({ onSuccess }: CheckoutFormProps) {
         `--------------------------------%0A` +
         `*TOTAL VALIDADO: R$ ${resultado.totalValidado.toFixed(2).replace('.', ',')}*`;
 
-      // Abre o WhatsApp com o número do Fortão
-      window.open(`https://wa.me/5522999650436?text=${mensagemWhatsApp}`, "_blank");
-      
+const whatsappUrl = `https://api.whatsapp.com/send?phone=5522999650436&text=${mensagemWhatsApp}`;
+
+// No iOS, window.open pode ser bloqueado após um fetch assíncrono.
+// Redirecionar a própria aba é muito mais garantido:
+window.location.href = whatsappUrl;
+
       clearCart();
       onSuccess();
     } catch (error: any) {
