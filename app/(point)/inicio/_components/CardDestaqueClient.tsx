@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Flame, ShoppingCart } from "lucide-react";
 import { useCart } from "@/app/store/useCart";
@@ -37,38 +36,43 @@ export function CardDestaqueClient({ produtos }: { produtos: ProdutoDestaque[] }
           return (
             <div 
               key={produto.id}
-              className="min-w-[180px] md:min-w-[220px] snap-start group"
+              className="min-w-[200px] md:min-w-[240px] snap-start group"
             >
-              <div className="relative bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-lg hover:shadow-orange-200/50 transition-all duration-300">
+              {/* Card com altura mínima fixa para evitar desalinhamento */}
+              <div className="flex flex-col h-full relative bg-white rounded-[2rem] p-4 border border-zinc-100 shadow-lg hover:shadow-orange-200/50 transition-all duration-300">
                 
                 {produto.precoPromocao && (
-                  <Badge className="absolute top-3 left-3 bg-orange-600 hover:bg-orange-700 text-[10px] font-bold uppercase rounded-full border-none px-2 py-0.5 z-10 animate-pulse">
+                  <Badge className="absolute top-4 left-4 bg-orange-600 hover:bg-orange-700 text-[10px] font-bold uppercase rounded-full border-none px-2 py-0.5 z-10 animate-pulse">
                     OFERTA
                   </Badge>
                 )}
 
-                <div className="aspect-square relative flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-500">
+                {/* Container da Imagem com TAMANHO FIXO */}
+                <div className="w-full h-40 relative flex items-center justify-center mb-4 overflow-hidden rounded-2xl">
                   <img 
                     src={produto.imageUrl || "/placeholder-drink.png"} 
                     alt={produto.nome}
-                    className="w-50 h-50 object-contain drop-shadow-2xl px-2"
+                    className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-110"
                   />
                 </div>
 
-                <div className="space-y-1 text-center">
-                  <h3 className="text-sm font-bold text-zinc-800 line-clamp-1 uppercase italic tracking-tighter">
-                    {produto.nome}
-                  </h3>
-                  
-                  <div className="flex flex-col">
-                    {produto.precoPromocao && (
-                      <span className="text-[10px] text-zinc-400 line-through leading-none">
-                        R$ {produto.preco.toFixed(2).replace('.', ',')}
-                      </span>
-                    )}
-                    <p className="text-lg font-black text-orange-600 leading-tight">
-                      R$ {valorFinal.toFixed(2).replace('.', ',')}
-                    </p>
+                {/* Área de Texto com altura flexível mas alinhada */}
+                <div className="flex flex-col flex-grow text-center justify-between">
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-black text-zinc-800 line-clamp-2 uppercase italic tracking-tighter min-h-[40px] flex items-center justify-center">
+                      {produto.nome}
+                    </h3>
+                    
+                    <div className="flex flex-col min-h-[44px] justify-center">
+                      {produto.precoPromocao && (
+                        <span className="text-[10px] text-zinc-400 line-through leading-none">
+                          R$ {produto.preco.toFixed(2).replace('.', ',')}
+                        </span>
+                      )}
+                      <p className="text-xl font-black text-orange-600 leading-tight">
+                        R$ {valorFinal.toFixed(2).replace('.', ',')}
+                      </p>
+                    </div>
                   </div>
                   
                   <button 
@@ -78,7 +82,7 @@ export function CardDestaqueClient({ produtos }: { produtos: ProdutoDestaque[] }
                       preco: valorFinal,
                       img: produto.imageUrl || "/placeholder-drink.png"
                     })}
-                    className="w-full mt-2 flex items-center justify-center gap-2 bg-zinc-900 text-white py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all hover:bg-orange-600 shadow-md"
+                    className="w-full mt-4 flex items-center justify-center gap-2 bg-zinc-900 text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all hover:bg-orange-600 shadow-md"
                   >
                     <ShoppingCart className="size-3" />
                     ADICIONAR

@@ -86,7 +86,7 @@ export default async function CategoriaPage({ params }: { params: Promise<{ slug
                       )}
                     </div>
                     
-                    <h3 className="font-bold text-zinc-800 text-sm line-clamp-2 h-10 italic uppercase leading-tight tracking-tighter">
+                    <h3 className="font-bold text-zinc-800 text-xs  h-10 italic uppercase leading-tight tracking-tighter">
                       {produto.nome}
                     </h3>
                   </div>

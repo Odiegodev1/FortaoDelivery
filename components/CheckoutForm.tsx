@@ -58,7 +58,7 @@ export function CheckoutForm({ onSuccess }: CheckoutFormProps) {
         .join('%0A');
 
       const mensagemWhatsApp = 
-        `*NOVO PEDIDO - POINT DO FORTÃO*%0A` +
+        `*💪NOVO PEDIDO - POINT DO FORTÃO*%0A` +
         `--------------------------------%0A` +
         `*Cliente:* ${resultado.cliente.nome}%0A` +
         `*Endereço:* ${resultado.cliente.endereco}%0A` +

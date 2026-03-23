@@ -20,9 +20,10 @@ export default async function AdminDashboard() {
   });
 
 
-  const sesseion = await auth();
-if(!sesseion?.user){
-  return redirect("/inicio")
+  const session = await auth();
+  console.log(session)
+if (!session?.user || (session.user as { role: string }).role !== "ADMIN") {
+    return redirect("/inicio");
 }
 
   // CONVERSÃO AQUI: Transforma Decimal em Number para o Serializer do Next.js não reclamar
