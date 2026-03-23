@@ -7,6 +7,7 @@ export async function CardDestaque() {
   const produtosDestaqueRaw = await prisma.produto.findMany({
     where: {
       isDestaque: true,
+      
       isAtivo: true,
     },
     take: 10, // Limita para não pesar o carrossel

@@ -58,7 +58,7 @@ if (!session?.user || (session.user as { role: string }).role !== "ADMIN") {
 
         {/* Conteúdo de cada aba abaixo */}
         <div className="mt-8">
-          <TabsContent value="produtos"><AdminProdutos produtos={produtos} /></TabsContent>
+          <TabsContent value="produtos"><AdminProdutos categorias={categorias} produtos={produtos} /></TabsContent>
           <TabsContent value="categorias"><AdminCategorias categorias={categorias} /></TabsContent>
           <TabsContent value="promocoes"><AdminPromocoes produtos={produtos} /></TabsContent>
           <TabsContent value="horario"><AdminHorario /></TabsContent>
