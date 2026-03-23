@@ -1,0 +1,146 @@
+// This is your Prisma schema file
+// Final version for Point do Fortão
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+ 
+}
+
+// ==========================================
+// AUTENTICAÇÃO (NextAuth)
+// ==========================================
+
+enum Role {
+  ADMIN
+  CLIENTE
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  role          Role      @default(CLIENTE)
+  
+  accounts      Account[]
+  sessions      Session[]
+  pedidos       Pedido[]  // Relacionamento com histórico de pedidos
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ==========================================
+// LOGICA DE NEGÓCIO (Point do Fortão)
+// ==========================================
+
+model Categoria {
+  id        String    @id @default(cuid())
+  nome      String    @unique
+  slug      String    @unique
+  imageUrl  String?   // Banner da categoria
+  color     String    @default("from-orange-600/80") // Cor do gradiente no card
+  
+  produtos  Produto[]
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("categorias")
+}
+
+model Produto {
+  id            String    @id @default(cuid())
+  nome          String
+  descricao     String?
+  preco         Decimal   @db.Decimal(10, 2)
+  precoPromocao Decimal?  @db.Decimal(10, 2)
+  imageUrl      String?
+  estoque       Int       @default(0)
+  unidade       String    @default("un") // un, pack, lt, dose
+  
+  isDestaque    Boolean   @default(false)
+  isAtivo       Boolean   @default(true)
+  
+  categoriaId   String
+  categoria     Categoria @relation(fields: [categoriaId], references: [id])
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("produtos")
+}
+
+model HorarioFuncionamento {
+  id          String   @id @default(cuid())
+  diaSemana   String   @unique // Segunda, Terça, Quarta...
+  abertura    String   // Ex: "18:00"
+  fechamento  String   // Ex: "02:00"
+  isFechado   Boolean  @default(false)
+
+  @@map("horarios_funcionamento")
+}
+
+model Pedido {
+  id          String   @id @default(cuid())
+  
+  // Opcional: Pedido pode pertencer a um usuário logado ou ser "guest"
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  
+  clienteNome String
+  whatsapp    String
+  endereco    String
+  total       Decimal  @db.Decimal(10, 2)
+  status      String   @default("PENDENTE") // PENDENTE, PREPARANDO, ENTREGUE, CANCELADO
+  
+  itens       Json     // Snapshot: [{id, nome, qtd, preco}]
+  
+  createdAt   DateTime @default(now())
+
+  @@map("pedidos")
+}
