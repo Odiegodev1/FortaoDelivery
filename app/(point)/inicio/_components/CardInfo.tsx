@@ -2,12 +2,13 @@
 import { prisma } from "@/lib/prisma";
 import { CardInfoClient } from "../CardInfoClient";
 
+// ADICIONE ESTA LINHA AQUI:
+// Isso diz ao Next.js para atualizar os dados a cada 0 segundos (sempre fresco)
+export const revalidate = 0; 
 
 export async function CardInfo() {
-  // Buscando da tabela correta: horarioFuncionamento
   const horarios = await prisma.horarioFuncionamento.findMany({
     orderBy: {
-      // Opcional: você pode ordenar se desejar, mas o map no cliente resolve
       diaSemana: 'asc' 
     }
   });

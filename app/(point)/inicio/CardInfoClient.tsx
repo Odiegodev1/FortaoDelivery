@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { MapPin, Info, Phone, Navigation } from "lucide-react";
 import Image from "next/image";
@@ -21,47 +21,49 @@ interface CardInfoProps {
 export function CardInfoClient({ horarios, endereco, telefone }: CardInfoProps) {
   const [status, setStatus] = useState({ label: "Carregando...", isOpen: false });
 
-  useEffect(() => {
-    const checkStatus = () => {
-      const agora = new Date();
-      // Ajuste para o fuso horário local se necessário, mas o Date() do navegador resolve para o cliente
-      const diaSemanaIndex = agora.getDay(); 
-      const horaAtual = agora.getHours() * 100 + agora.getMinutes();
+  const checkStatus = useCallback(() => {
+    // Força o fuso horário de Brasília para evitar erro em servidores estrangeiros
+    const agora = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    
+    const diaSemanaIndex = agora.getDay();
+    const horaAtual = agora.getHours() * 100 + agora.getMinutes();
 
-      // Mapeamento exato dos nomes que você salvou no banco
-      const diasMap: any = { 
-        "Domingo": 0, "Segunda": 1, "Terça": 2, "Quarta": 3, 
-        "Quinta": 4, "Sexta": 5, "Sábado": 6 
-      };
-
-      const hoje = horarios.find((h: any) => diasMap[h.diaSemana] === diaSemanaIndex);
-
-      if (hoje && !hoje.isFechado) {
-        const abertura = parseInt(hoje.abertura.replace(":", ""));
-        const fechamento = parseInt(hoje.fechamento.replace(":", ""));
-
-        let aberto = false;
-        // Lógica para horários que viram a noite (ex: abre 18:00 e fecha 02:00)
-        if (fechamento < abertura) {
-          aberto = horaAtual >= abertura || horaAtual <= fechamento;
-        } else {
-          aberto = horaAtual >= abertura && horaAtual <= fechamento;
-        }
-
-        if (aberto) {
-          setStatus({ label: `Aberto até ${hoje.fechamento}`, isOpen: true });
-        } else {
-          setStatus({ label: "Fechado agora", isOpen: false });
-        }
-      } else {
-        setStatus({ label: "Fechado hoje", isOpen: false });
-      }
+    const diasMap: Record<string, number> = {
+      "Domingo": 0, "Segunda": 1, "Terça": 2, "Quarta": 3,
+      "Quinta": 4, "Sexta": 5, "Sábado": 6
     };
 
-    checkStatus();
-    const timer = setInterval(checkStatus, 60000);
-    return () => clearInterval(timer);
+    const hoje = horarios.find((h: any) => diasMap[h.diaSemana] === diaSemanaIndex);
+
+    if (hoje && !hoje.isFechado) {
+      // Remove os ":" e converte para número para comparar (ex: "18:30" -> 1830)
+      const abertura = parseInt(hoje.abertura.replace(":", ""));
+      const fechamento = parseInt(hoje.fechamento.replace(":", ""));
+
+      let aberto = false;
+
+      // Lógica para horários que cruzam a meia-noite (ex: abre 18:00 e fecha 02:00)
+      if (fechamento < abertura) {
+        aberto = horaAtual >= abertura || horaAtual <= fechamento;
+      } else {
+        aberto = horaAtual >= abertura && horaAtual <= fechamento;
+      }
+
+      if (aberto) {
+        setStatus({ label: `Aberto até ${hoje.fechamento}`, isOpen: true });
+      } else {
+        setStatus({ label: "Fechado agora", isOpen: false });
+      }
+    } else {
+      setStatus({ label: "Fechado hoje", isOpen: false });
+    }
   }, [horarios]);
+
+  useEffect(() => {
+    checkStatus();
+    const timer = setInterval(checkStatus, 30000); // Checa a cada 30 segundos
+    return () => clearInterval(timer);
+  }, [checkStatus]);
 
   return (
     <div className="w-full mx-auto">
@@ -71,12 +73,12 @@ export function CardInfoClient({ horarios, endereco, telefone }: CardInfoProps) 
             <div className="relative group cursor-pointer">
               <div className="absolute -inset-1 bg-gradient-to-r from-orange-600 to-red-500 rounded-full blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
               <div className="relative flex items-center justify-center bg-white rounded-full p-1.5 shadow-xl">
-                <Image 
-                  src="/logo.png" 
-                  alt="logo" 
-                  width={160} 
-                  height={160} 
-                  className="size-28 md:size-32 rounded-full object-cover transition-transform duration-500 group-hover:rotate-3 group-hover:scale-110" 
+                <Image
+                  src="/logo.png"
+                  alt="logo"
+                  width={160}
+                  height={160}
+                  className="size-28 md:size-32 rounded-full object-cover transition-transform duration-500 group-hover:rotate-3 group-hover:scale-110"
                 />
               </div>
             </div>
@@ -97,7 +99,6 @@ export function CardInfoClient({ horarios, endereco, telefone }: CardInfoProps) 
 
           <div className="flex flex-col gap-3 w-full pt-2">
             <div className="flex items-center justify-center gap-3 py-2 px-4 bg-zinc-100/50 rounded-2xl border border-zinc-200/50">
-              
               <Dialog>
                 <DialogTrigger asChild>
                   <div className="flex items-center gap-1.5 text-zinc-700 cursor-pointer hover:text-orange-600 transition-colors">
@@ -111,7 +112,7 @@ export function CardInfoClient({ horarios, endereco, telefone }: CardInfoProps) 
                       Detalhes do <span className="text-orange-600">Point</span>
                     </DialogTitle>
                   </DialogHeader>
-                  
+
                   <div className="space-y-4 pt-4 text-left">
                     <div className="flex items-start gap-3 p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
                       <Navigation className="size-5 text-orange-600 shrink-0" />
@@ -159,7 +160,6 @@ export function CardInfoClient({ horarios, endereco, telefone }: CardInfoProps) 
                   {status.label}
                 </span>
               </div>
-
             </div>
           </div>
         </CardContent>
